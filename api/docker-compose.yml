@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  febeapi:
+    container_name: FeBeApi
+    build:
+      context: .
+      dockerfile: ./docker/api/Dockerfile
+    ports:
+      - 8000:8000
+    volumes:
+      - ./:/FeBeApi/
+    depends_on:
+      - febedb
+  febedb:
+    image: mysql:8
+    container_name: FeBeDB
+    build:
+      context: .
+      dockerfile: ./docker/db/Dockerfile
+    platform: linux/x86_64
+    tty: true
+    ports:
+      - 3306:3306
+    env_file:
+      - ./db/.env_mysql
+    volumes:
+      - type: volume
+        source: mysql-data
+        target: /var/lib/mysql
+      - type: bind
+        source: ./db/init
+        target: /docker-entrypoint-initdb.d
+
+volumes:
+  mysql-data:
+    name: FeBeDB
